@@ -10,9 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals with Subtle Accents -->
-    <!-- Application Structure Plan: The application is structured as a single-page dashboard. It starts with a clear title and introduction addressing the user's primary concern (payment security). The core is an interactive "Platform Explorer" with filter controls and a dynamic card grid, allowing users to compare platforms based on what matters most to them (reliability, beginner-friendliness, specialty). This is more usable than a static table as it puts the user in control. Following the explorer, two interactive charts provide a high-level visual comparison of reliability and platform specializations. The page then delves into "Essential Guides" for securing payments (KYC, reporting) and concludes with actionable recommendations. This structure guides the user from broad comparison to detailed, practical advice, directly addressing their goal of finding a trustworthy platform and getting paid. -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard. It starts with a clear title and introduction addressing the user's primary concern (payment security). The core is an interactive "Platform Explorer" with filter controls and a dynamic card grid, allowing users to compare platforms based on what matters most to them (reliability, beginner-friendly, specialty). This is more usable than a static table as it puts the user in control. Following the explorer, two interactive charts provide a high-level visual comparison of reliability and platform specializations. The page then delves into "Essential Guides" for securing payments (KYC, reporting) and concludes with actionable recommendations. This structure guides the user from broad comparison to detailed, practical advice, directly addressing their goal of finding a trustworthy platform and getting paid. -->
     <!-- Visualization & Content Choices: 
-        - Platform Data -> Goal: Compare/Filter -> Viz: Interactive Card Grid (HTML/JS) -> Interaction: Users can filter by reliability, beginner-friendliness, and specialty. Cards are clickable to show more details. Justification: Superior to a static table for user-driven exploration.
+        - Platform Data -> Goal: Compare/Filter -> Viz: Interactive Card Grid (HTML/JS) -> Interaction: Users can filter by reliability, beginner-friendly, and specialty. Cards are clickable to show more details. Justification: Superior to a static table for user-driven exploration.
         - Reliability/Dispute Ratings -> Goal: Compare -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Hover for tooltips with exact ratings. Justification: Provides an immediate, clear visual comparison of platform trustworthiness.
         - Platform Specialization -> Goal: Inform/Organize -> Viz: Donut Chart (Chart.js/Canvas) -> Interaction: Hover to see platform counts per category. Justification: Quickly shows the distribution of platform types in the market.
         - Key Advice (KYC, Reporting) -> Goal: Inform/Guide -> Viz: Styled Text Blocks/Accordions (HTML/Tailwind) -> Interaction: Click to expand/collapse. Justification: Organizes detailed text content cleanly, preventing information overload.
@@ -145,11 +145,11 @@
 
             <!-- Gemini API Features Section -->
             <section id="gemini-features" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-12">
-                <h2 class="text-3xl font-bold text-center mb-8 text-[#5D4037]">أدوات مساعدة مدعومة بـ Gemini API</h2>
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#5D4037]">أدوات مساعدة</h2>
                 
                 <!-- Vulnerability Idea Generator -->
                 <div class="mb-10 p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
-                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]">✨ مولد أفكار الثغرات</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]"> مولد أفكار الثغرات</h3>
                     <p class="text-gray-700 mb-4">اختر تخصص المنصة أو نوع الهدف للحصول على اقتراحات لثغرات محتملة للبحث عنها.</p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-4">
                         <select id="platformSpecialtySelect" class="flex-grow p-3 border border-gray-300 rounded-lg bg-white text-gray-700">
@@ -171,9 +171,37 @@
                     </div>
                 </div>
 
-                <!-- Report Quality Assessor -->
+                <!-- Vulnerability Impact Assessor -->
+                <div class="mb-10 p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]"> مقيّم تأثير الثغرة</h3>
+                    <p class="text-gray-700 mb-4">أدخل وصفًا موجزًا للثغرة لتقدير تأثيرها المحتمل.</p>
+                    <textarea id="vulnerabilityDescriptionInput" rows="4" class="w-full p-3 border border-gray-300 rounded-lg text-gray-700" placeholder="مثال: XSS منعكس في حقل اسم المستخدم بصفحة تسجيل الدخول..."></textarea>
+                    <button id="assessVulnerabilityImpactBtn" class="w-full bg-[#A1887F] text-white font-semibold py-3 px-6 rounded-full hover:bg-[#8D6E63] transition-colors mt-4">
+                        <span id="assessVulnerabilityImpactBtnText">تقييم التأثير</span>
+                        <span id="assessVulnerabilityImpactSpinner" class="loading-spinner hidden"></span>
+                    </button>
+                    <div id="vulnerabilityImpactOutput" class="mt-6 p-4 bg-white border border-gray-200 rounded-lg text-gray-800 min-h-[80px] flex items-center justify-center text-center">
+                        <p class="text-gray-500">سيظهر هنا تقييم تأثير الثغرة...</p>
+                    </div>
+                </div>
+
+                <!-- Report Title/Summary Generator -->
+                <div class="mb-10 p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]"> مولد عنوان وملخص التقرير</h3>
+                    <p class="text-gray-700 mb-4">الصق نص تقرير الثغرة كاملاً للحصول على اقتراحات لعناوين وملخصات.</p>
+                    <textarea id="fullReportBodyInput" rows="8" class="w-full p-3 border border-gray-300 rounded-lg text-gray-700" placeholder="الصق نص تقرير الثغرة المفصل هنا..."></textarea>
+                    <button id="generateReportTitleSummaryBtn" class="w-full bg-[#A1887F] text-white font-semibold py-3 px-6 rounded-full hover:bg-[#8D6E63] transition-colors mt-4">
+                        <span id="generateReportTitleSummaryBtnText">توليد العنوان والملخص</span>
+                        <span id="generateReportTitleSummarySpinner" class="loading-spinner hidden"></span>
+                    </button>
+                    <div id="reportTitleSummaryOutput" class="mt-6 p-4 bg-white border border-gray-200 rounded-lg text-gray-800 min-h-[80px] flex items-center justify-center text-center">
+                        <p class="text-gray-500">سيظهر هنا العناوين والملخصات المقترحة...</p>
+                    </div>
+                </div>
+
+                <!-- Report Quality Assessor (Existing) -->
                 <div class="p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
-                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]">✨ مساعد جودة التقرير</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]"> مساعد جودة التقرير</h3>
                     <p class="text-gray-700 mb-4">الصق مسودة تقرير الثغرة هنا للحصول على ملاحظات حول جودتها وتحسينها.</p>
                     <textarea id="reportDraftTextarea" rows="8" class="w-full p-3 border border-gray-300 rounded-lg text-gray-700" placeholder="الصق مسودة تقرير الثغرة هنا..."></textarea>
                     <button id="assessReportQualityBtn" class="w-full bg-[#A1887F] text-white font-semibold py-3 px-6 rounded-full hover:bg-[#8D6E63] transition-colors mt-4">
@@ -217,13 +245,26 @@
         </main>
         
         <footer class="text-center mt-12 text-sm text-gray-500">
-          
+            <p>تم إنشاء هذا التطبيق التفاعلي بناءً على تقرير "أفضل 10 منصات لمكافآت الأخطاء".</p>
             <p>&copy; 2025 - دليل الباحث الأمني</p>
         </footer>
 
     </div>
 
     <script>
+        // Function to sanitize input to prevent XSS
+        function sanitizeInput(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#x27;',
+                '/': '&#x2F;',
+            };
+            return text.replace(/[&<>"'/]/g, function (m) { return map[m]; });
+        }
+
         const platformData = [
             {
                 name: "HackerOne",
@@ -365,20 +406,20 @@
                 card.className = 'card bg-[#FBFBFB] rounded-xl p-6 border border-gray-200 flex flex-col justify-between';
                 card.innerHTML = `
                     <div>
-                        <h3 class="text-2xl font-bold mb-3 text-[#6D4C41]">${platform.name}</h3>
+                        <h3 class="text-2xl font-bold mb-3 text-[#6D4C41]">${sanitizeInput(platform.name)}</h3>
                         <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="tag ${getReliabilityClass(platform.reliability)}">موثوقية الدفع: ${platform.reliability}</span>
-                            <span class="tag tag-specialty">${platform.specialty}</span>
+                            <span class="tag ${getReliabilityClass(platform.reliability)}">موثوقية الدفع: ${sanitizeInput(platform.reliability)}</span>
+                            <span class="tag tag-specialty">${sanitizeInput(platform.specialty)}</span>
                             ${platform.beginnerFriendly ? '<span class="tag tag-beginner">مناسبة للمبتدئين</span>' : ''}
                         </div>
                         <div class="details-content" id="details-${platform.name.replace(/\s/g, '')}">
-                            <p class="mb-2"><strong class="font-semibold text-green-700">الإيجابيات:</strong> ${platform.pros}</p>
-                            <p><strong class="font-semibold text-red-700">السلبيات:</strong> ${platform.cons}</p>
+                            <p class="mb-2"><strong class="font-semibold text-green-700">الإيجابيات:</strong> ${sanitizeInput(platform.pros)}</p>
+                            <p><strong class="font-semibold text-red-700">السلبيات:</strong> ${sanitizeInput(platform.cons)}</p>
                         </div>
                     </div>
                     <div class="mt-4 flex flex-col sm:flex-row gap-3">
                         <button class="toggle-details-btn bg-[#EFEBE9] text-[#5D4037] font-semibold py-2 px-4 rounded-full hover:bg-[#D7CCC8] transition-colors flex-grow" data-target="details-${platform.name.replace(/\s/g, '')}">عرض التفاصيل</button>
-                        <a href="${platform.url}" target="_blank" rel="noopener noreferrer" class="bg-[#A1887F] text-white font-semibold py-2 px-4 rounded-full hover:bg-[#8D6E63] transition-colors text-center flex-grow">زيارة المنصة</a>
+                        <a href="${sanitizeInput(platform.url)}" target="_blank" rel="noopener noreferrer" class="bg-[#A1887F] text-white font-semibold py-2 px-4 rounded-full hover:bg-[#8D6E63] transition-colors text-center flex-grow">زيارة المنصة</a>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -519,8 +560,8 @@
             const generateVulnerabilityIdeasSpinner = document.getElementById('generateVulnerabilityIdeasSpinner');
 
             generateVulnerabilityIdeasBtn.addEventListener('click', async () => {
-                const specialty = platformSpecialtySelect.value;
-                const targetType = targetTypeInput.value.trim();
+                const specialty = sanitizeInput(platformSpecialtySelect.value); // Sanitize input
+                const targetType = sanitizeInput(targetTypeInput.value.trim()); // Sanitize input
                 let prompt = "اقترح 5 أفكار لثغرات أمنية (Bug Bounty ideas) مع وصف موجز لكل فكرة.";
 
                 if (specialty && targetType) {
@@ -539,33 +580,148 @@
                 vulnerabilityIdeasOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري توليد الأفكار...</p>';
 
                 try {
+                    const apiKey = "AIzaSyAJijq2Es_fHJwSyshTG9rjs3h5oO62k-I"; // <--- ضع مفتاح API الخاص بك هنا
+                    
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
                     const response = await fetch(apiUrl, {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey 
+                                },
                                 body: JSON.stringify(payload)
                             });
                     const result = await response.json();
                     if (result.candidates && result.candidates.length > 0 &&
                         result.candidates[0].content && result.candidates[0].content.parts &&
                         result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
+                        const text = sanitizeInput(result.candidates[0].content.parts[0].text); // Sanitize output
                         vulnerabilityIdeasOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
                     } else {
                         vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ في توليد الأفكار. الرجاء المحاولة مرة أخرى.</p>';
                     }
                 } catch (error) {
                     console.error('Error generating vulnerability ideas:', error);
-                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
                 } finally {
                     generateVulnerabilityIdeasBtnText.classList.remove('hidden');
                     generateVulnerabilityIdeasSpinner.classList.add('hidden');
                 }
             });
+
+            // Vulnerability Impact Assessor Logic
+            const vulnerabilityDescriptionInput = document.getElementById('vulnerabilityDescriptionInput');
+            const assessVulnerabilityImpactBtn = document.getElementById('assessVulnerabilityImpactBtn');
+            const vulnerabilityImpactOutput = document.getElementById('vulnerabilityImpactOutput');
+            const assessVulnerabilityImpactBtnText = document.getElementById('assessVulnerabilityImpactBtnText');
+            const assessVulnerabilityImpactSpinner = document.getElementById('assessVulnerabilityImpactSpinner');
+
+            assessVulnerabilityImpactBtn.addEventListener('click', async () => {
+                const vulnerabilityDescription = sanitizeInput(vulnerabilityDescriptionInput.value.trim());
+                if (!vulnerabilityDescription) {
+                    vulnerabilityImpactOutput.innerHTML = '<p class="text-red-500">الرجاء إدخال وصف للثغرة لتقييم تأثيرها.</p>';
+                    return;
+                }
+
+                const prompt = `Based on the following vulnerability description, assess its potential impact (e.g., Low, Medium, High, Critical) and provide a brief justification based on common security impact criteria (e.g., data confidentiality, integrity, availability, user interaction, scope). Vulnerability: "${vulnerabilityDescription}"`;
+
+                assessVulnerabilityImpactBtnText.classList.add('hidden');
+                assessVulnerabilityImpactSpinner.classList.remove('hidden');
+                vulnerabilityImpactOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري تقييم التأثير...</p>';
+
+                try {
+                    const apiKey = "AIzaSyAJijq2Es_fHJwSyshTG9rjs3h5oO62k-I"; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey 
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = sanitizeInput(result.candidates[0].content.parts[0].text);
+                        vulnerabilityImpactOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+                    } else {
+                        vulnerabilityImpactOutput.innerHTML = '<p class="text-red-500">حدث خطأ في تقييم التأثير. الرجاء المحاولة مرة أخرى.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error assessing vulnerability impact:', error);
+                    vulnerabilityImpactOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
+                } finally {
+                    assessVulnerabilityImpactBtnText.classList.remove('hidden');
+                    assessVulnerabilityImpactSpinner.classList.add('hidden');
+                }
+            });
+
+            // Report Title/Summary Generator Logic
+            const fullReportBodyInput = document.getElementById('fullReportBodyInput');
+            const generateReportTitleSummaryBtn = document.getElementById('generateReportTitleSummaryBtn');
+            const reportTitleSummaryOutput = document.getElementById('reportTitleSummaryOutput');
+            const generateReportTitleSummaryBtnText = document.getElementById('generateReportTitleSummaryBtnText');
+            const generateReportTitleSummarySpinner = document.getElementById('generateReportTitleSummarySpinner');
+
+            generateReportTitleSummaryBtn.addEventListener('click', async () => {
+                const reportBody = sanitizeInput(fullReportBodyInput.value.trim());
+                if (!reportBody) {
+                    reportTitleSummaryOutput.innerHTML = '<p class="text-red-500">الرجاء لصق نص التقرير كاملاً لتوليد العناوين والملخصات.</p>';
+                    return;
+                }
+
+                const prompt = `Given the following bug bounty report body, suggest 3 concise and impactful titles and a brief, compelling summary (2-3 sentences). Focus on clarity, highlighting the core issue, and making it appealing for a security team. Report Body: "${reportBody}"`;
+
+                generateReportTitleSummaryBtnText.classList.add('hidden');
+                generateReportTitleSummarySpinner.classList.remove('hidden');
+                reportTitleSummaryOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري توليد العناوين والملخصات...</p>';
+
+                try {
+                    const apiKey = "AIzaSyAJijq2Es_fHJwSyshTG9rjs3h5oO62k-I"; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey 
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = sanitizeInput(result.candidates[0].content.parts[0].text);
+                        reportTitleSummaryOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+                    } else {
+                        reportTitleSummaryOutput.innerHTML = '<p class="text-red-500">حدث خطأ في توليد العناوين والملخصات. الرجاء المحاولة مرة أخرى.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error generating report title/summary:', error);
+                    reportTitleSummaryOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
+                } finally {
+                    generateReportTitleSummaryBtnText.classList.remove('hidden');
+                    generateReportTitleSummarySpinner.classList.add('hidden');
+                }
+            });
+
 
             const assessReportQualityBtn = document.getElementById('assessReportQualityBtn');
             const reportDraftTextarea = document.getElementById('reportDraftTextarea');
@@ -574,7 +730,7 @@
             const assessReportQualitySpinner = document.getElementById('assessReportQualitySpinner');
 
             assessReportQualityBtn.addEventListener('click', async () => {
-                const reportText = reportDraftTextarea.value.trim();
+                const reportText = sanitizeInput(reportDraftTextarea.value.trim()); // Sanitize input
                 if (!reportText) {
                     reportQualityOutput.innerHTML = '<p class="text-red-500">الرجاء لصق مسودة التقرير لتقييمها.</p>';
                     return;
@@ -587,28 +743,34 @@
                 reportQualityOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري تقييم التقرير...</p>';
 
                 try {
+                    const apiKey = "AIzaSyAJijq2Es_fHJwSyshTG9rjs3h5oO62k-I"; // <--- ضع مفتاح API الخاص بك هنا
+
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
                     const response = await fetch(apiUrl, {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey 
+                                },
                                 body: JSON.stringify(payload)
                             });
                     const result = await response.json();
                     if (result.candidates && result.candidates.length > 0 &&
                         result.candidates[0].content && result.candidates[0].content.parts &&
                         result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
+                        const text = sanitizeInput(result.candidates[0].content.parts[0].text); // Sanitize output
                         reportQualityOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
                     } else {
                         reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ في تقييم التقرير. الرجاء المحاولة مرة أخرى.</p>';
                     }
                 } catch (error) {
                     console.error('Error assessing report quality:', error);
-                    reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                    reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
                 } finally {
                     assessReportQualityBtnText.classList.remove('hidden');
                     assessReportQualitySpinner.classList.add('hidden');
