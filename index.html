@@ -217,7 +217,7 @@
         </main>
         
         <footer class="text-center mt-12 text-sm text-gray-500">
-          
+            <p>تم إنشاء هذا التطبيق التفاعلي بناءً على تقرير "أفضل 10 منصات لمكافآت الأخطاء".</p>
             <p>&copy; 2025 - دليل الباحث الأمني</p>
         </footer>
 
@@ -539,14 +539,21 @@
                 vulnerabilityIdeasOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري توليد الأفكار...</p>';
 
                 try {
+                    const apiKey = "AIzaSyCZmxOc0WwB4Q8_OeNulW95Xz6GZFiscOc"; // <--- ضع مفتاح API الخاص بك هنا
+                    
+                    // تم تعديل apiUrl لإزالة مفتاح API من الاستعلام
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
                     const response = await fetch(apiUrl, {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey // <--- تم إضافة مفتاح API هنا في الهيدر
+                                },
                                 body: JSON.stringify(payload)
                             });
                     const result = await response.json();
@@ -560,7 +567,7 @@
                     }
                 } catch (error) {
                     console.error('Error generating vulnerability ideas:', error);
-                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
                 } finally {
                     generateVulnerabilityIdeasBtnText.classList.remove('hidden');
                     generateVulnerabilityIdeasSpinner.classList.add('hidden');
@@ -587,14 +594,21 @@
                 reportQualityOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري تقييم التقرير...</p>';
 
                 try {
+                    const apiKey = "AIzaSyCZmxOc0WwB4Q8_OeNulW95Xz6GZFiscOc"; // <--- ضع مفتاح API الخاص بك هنا
+
+                    // تم تعديل apiUrl لإزالة مفتاح API من الاستعلام
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                    
                     let chatHistory = [];
                     chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                     const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
                     const response = await fetch(apiUrl, {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'X-goog-api-key': apiKey // <--- تم إضافة مفتاح API هنا في الهيدر
+                                },
                                 body: JSON.stringify(payload)
                             });
                     const result = await response.json();
@@ -608,7 +622,7 @@
                     }
                 } catch (error) {
                     console.error('Error assessing report quality:', error);
-                    reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                    reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء التأكد من صحة مفتاح API الخاص بك والمحاولة لاحقاً.</p>';
                 } finally {
                     assessReportQualityBtnText.classList.remove('hidden');
                     assessReportQualitySpinner.classList.add('hidden');
