@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل منصات مكافآت الأخطاء الموثوقة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Subtle Accents -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard. It starts with a clear title and introduction addressing the user's primary concern (payment security). The core is an interactive "Platform Explorer" with filter controls and a dynamic card grid, allowing users to compare platforms based on what matters most to them (reliability, beginner-friendliness, specialty). This is more usable than a static table as it puts the user in control. Following the explorer, two interactive charts provide a high-level visual comparison of reliability and platform specializations. The page then delves into "Essential Guides" for securing payments (KYC, reporting) and concludes with actionable recommendations. This structure guides the user from broad comparison to detailed, practical advice, directly addressing their goal of finding a trustworthy platform and getting paid. -->
+    <!-- Visualization & Content Choices: 
+        - Platform Data -> Goal: Compare/Filter -> Viz: Interactive Card Grid (HTML/JS) -> Interaction: Users can filter by reliability, beginner-friendliness, and specialty. Cards are clickable to show more details. Justification: Superior to a static table for user-driven exploration.
+        - Reliability/Dispute Ratings -> Goal: Compare -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Hover for tooltips with exact ratings. Justification: Provides an immediate, clear visual comparison of platform trustworthiness.
+        - Platform Specialization -> Goal: Inform/Organize -> Viz: Donut Chart (Chart.js/Canvas) -> Interaction: Hover to see platform counts per category. Justification: Quickly shows the distribution of platform types in the market.
+        - Key Advice (KYC, Reporting) -> Goal: Inform/Guide -> Viz: Styled Text Blocks/Accordions (HTML/Tailwind) -> Interaction: Click to expand/collapse. Justification: Organizes detailed text content cleanly, preventing information overload.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #FDFBF7;
+            color: #3D352E;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        .tag-high { background-color: #E6F3E6; color: #2E7D32; }
+        .tag-medium { background-color: #FFF3E0; color: #EF6C00; }
+        .tag-low { background-color: #FFEBEE; color: #C62828; }
+        .tag-specialty { background-color: #E3F2FD; color: #1565C0; }
+        .tag-beginner { background-color: #F3E5F5; color: #6A1B9A; }
+        .btn-filter {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-filter.active {
+            background-color: #A1887F;
+            color: #FFFFFF;
+            transform: scale(1.05);
+        }
+        .btn-filter:not(.active) {
+            background-color: #EFEBE9;
+            color: #5D4037;
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .details-content.show {
+            max-height: 200px; /* Adjust as needed based on content */
+            transition: max-height 0.5s ease-in;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #A1887F;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#5D4037] mb-4">دليلك لاختيار منصة Bug Bounty الموثوقة</h1>
+            <p class="max-w-3xl mx-auto text-lg text-[#795548]">
+                القلق الأكبر لكل باحث أمني هو ضمان الحصول على مقابل مادي لجهوده. هذا التطبيق التفاعلي يحلل أفضل المنصات ويركز على موثوقية الدفع، شفافية الإجراءات، وآليات حل النزاعات لمساعدتك على اتخاذ قرار مستنير وتجنب أي محاولات احتيال.
+            </p>
+        </header>
+
+        <main>
+            <!-- Platform Explorer Section -->
+            <section id="explorer" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-12">
+                <h2 class="text-3xl font-bold text-center mb-2 text-[#5D4037]">استكشف المنصات</h2>
+                <p class="text-center text-gray-600 mb-8">استخدم الفلاتر التالية لتصنيف المنصات حسب أولوياتك.</p>
+                
+                <div id="filters" class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+                    <button class="btn-filter font-semibold py-2 px-4 rounded-full active" data-filter="all">الكل</button>
+                    <button class="btn-filter font-semibold py-2 px-4 rounded-full" data-filter="high-reliability">موثوقية دفع عالية</button>
+                    <button class="btn-filter font-semibold py-2 px-4 rounded-full" data-filter="beginner-friendly">مناسبة للمبتدئين</button>
+                    <button class="btn-filter font-semibold py-2 px-4 rounded-full" data-filter="web3">متخصصة في Web3</button>
+                </div>
+
+                <div id="platform-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Platform cards will be dynamically inserted here -->
+                </div>
+            </section>
+
+            <!-- Visual Comparison Section -->
+            <section id="charts" class="mb-12">
+                 <h2 class="text-3xl font-bold text-center mb-8 text-[#5D4037]">مقارنة مرئية</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-center mb-4 text-[#6D4C41]">تقييم الموثوقية وحل النزاعات</h3>
+                        <div class="chart-container">
+                            <canvas id="reliabilityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                         <h3 class="text-xl font-bold text-center mb-4 text-[#6D4C41]">تخصصات المنصات</h3>
+                        <div class="chart-container">
+                            <canvas id="specialtyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gemini API Features Section -->
+            <section id="gemini-features" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-12">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#5D4037]">أدوات مساعدة مدعومة بـ Gemini API</h2>
+                
+                <!-- Vulnerability Idea Generator -->
+                <div class="mb-10 p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]">✨ مولد أفكار الثغرات</h3>
+                    <p class="text-gray-700 mb-4">اختر تخصص المنصة أو نوع الهدف للحصول على اقتراحات لثغرات محتملة للبحث عنها.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                        <select id="platformSpecialtySelect" class="flex-grow p-3 border border-gray-300 rounded-lg bg-white text-gray-700">
+                            <option value="">اختر تخصص المنصة</option>
+                            <option value="عام">عام</option>
+                            <option value="Web3">Web3</option>
+                            <option value="متخصص">متخصص</option>
+                            <option value="PTaaS">PTaaS</option>
+                            <option value="غير ربحية">غير ربحية</option>
+                        </select>
+                        <input type="text" id="targetTypeInput" placeholder="أو أدخل نوع الهدف (مثال: تطبيق ويب، عقد ذكي)" class="flex-grow p-3 border border-gray-300 rounded-lg text-gray-700" />
+                    </div>
+                    <button id="generateVulnerabilityIdeasBtn" class="w-full bg-[#A1887F] text-white font-semibold py-3 px-6 rounded-full hover:bg-[#8D6E63] transition-colors">
+                        <span id="generateVulnerabilityIdeasBtnText">توليد الأفكار</span>
+                        <span id="generateVulnerabilityIdeasSpinner" class="loading-spinner hidden"></span>
+                    </button>
+                    <div id="vulnerabilityIdeasOutput" class="mt-6 p-4 bg-white border border-gray-200 rounded-lg text-gray-800 min-h-[80px] flex items-center justify-center text-center">
+                        <p class="text-gray-500">سيظهر هنا اقتراحات الثغرات...</p>
+                    </div>
+                </div>
+
+                <!-- Report Quality Assessor -->
+                <div class="p-6 bg-[#F5F5F5] rounded-lg shadow-inner">
+                    <h3 class="text-2xl font-bold mb-4 text-[#6D4C41]">✨ مساعد جودة التقرير</h3>
+                    <p class="text-gray-700 mb-4">الصق مسودة تقرير الثغرة هنا للحصول على ملاحظات حول جودتها وتحسينها.</p>
+                    <textarea id="reportDraftTextarea" rows="8" class="w-full p-3 border border-gray-300 rounded-lg text-gray-700" placeholder="الصق مسودة تقرير الثغرة هنا..."></textarea>
+                    <button id="assessReportQualityBtn" class="w-full bg-[#A1887F] text-white font-semibold py-3 px-6 rounded-full hover:bg-[#8D6E63] transition-colors mt-4">
+                        <span id="assessReportQualityBtnText">تقييم الجودة</span>
+                        <span id="assessReportQualitySpinner" class="loading-spinner hidden"></span>
+                    </button>
+                    <div id="reportQualityOutput" class="mt-6 p-4 bg-white border border-gray-200 rounded-lg text-gray-800 min-h-[80px] flex items-center justify-center text-center">
+                        <p class="text-gray-500">ستظهر هنا ملاحظات حول جودة التقرير...</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Essential Guides Section -->
+            <section id="guides" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-12">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#5D4037]">إرشادات أساسية لضمان مستحقاتك</h2>
+                <div class="space-y-6 max-w-4xl mx-auto">
+                    <div class="bg-[#F5F5F5] p-5 rounded-lg">
+                        <h3 class="font-bold text-xl mb-2 text-[#5D4037]">📝 جودة التقرير هي مفتاحك للدفع</h3>
+                        <p class="text-gray-700">التقرير الواضح والمفصل الذي يحتوي على خطوات دقيقة لإعادة إنتاج الثغرة، ولقطات شاشة، وشرح للتأثير، يسرّع عملية المراجعة والدفع. المنصات تقدر التقارير عالية الجودة وتكافئها بشكل أفضل. استثمر الوقت في تقريرك، فهو استثمار في مكافأتك.</p>
+                    </div>
+                    <div class="bg-[#F5F5F5] p-5 rounded-lg">
+                        <h3 class="font-bold text-xl mb-2 text-[#5D4037]">📜 فهم شروط الدفع (KYC والضرائب)</h3>
+                        <p class="text-gray-700">معظم المنصات تطلب التحقق من الهوية (KYC) قبل الدفع. جهّز أوراقك الثبوتية ونماذجك الضريبية مسبقاً. عدم الامتثال لهذه القواعد التنظيمية هو سبب شائع لتأخر أو فقدان المدفوعات، وهو ليس "احتيالاً" من المنصة بل التزاماً بالقوانين المالية.</p>
+                    </div>
+                     <div class="bg-[#F5F5F5] p-5 rounded-lg">
+                        <h3 class="font-bold text-xl mb-2 text-[#5D4037]">⚖️ ماذا تفعل عند حدوث خلاف؟</h3>
+                        <p class="text-gray-700">إذا شعرت أن تقريرك قُيّم بشكل غير عادل، ابدأ دائماً بعملية الوساطة الداخلية للمنصة. احتفظ بتوثيق كامل لجميع اتصالاتك. للمبالغ الكبيرة، اختر منصة مثل Immunefi التي توفر تحكيماً ملزماً قانوناً، فهذا يوفر أقوى شبكة أمان لك.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conclusion Section -->
+            <section id="conclusion" class="text-center">
+                <h2 class="text-3xl font-bold mb-4 text-[#5D4037]">توصيات نهائية</h2>
+                <p class="max-w-3xl mx-auto text-lg text-[#795548] mb-6">
+                    الخلاصة هي أن موثوقية الدفع مسؤولية مشتركة. اختر منصة شفافة، افهم قواعدها جيداً، قدم تقارير احترافية، وكن استباقياً في التواصل. باستخدام هذا النهج، ستقلل بشكل كبير من مخاطر النزاعات وتبني مسيرة مهنية ناجحة ومربحة في عالم مكافآت الأخطاء.
+                </p>
+                <a href="#explorer" class="bg-[#A1887F] text-white font-bold py-3 px-8 rounded-full hover:bg-[#8D6E63] transition-colors">ابدأ استكشاف المنصات الآن</a>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-12 text-sm text-gray-500">
+          
+            <p>&copy; 2025 - دليل الباحث الأمني</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const platformData = [
+            {
+                name: "HackerOne",
+                specialty: "عام",
+                reliability: "جيدة",
+                reliabilityScore: 4,
+                disputeEffectiveness: 4,
+                beginnerFriendly: true,
+                pros: "أكبر مجتمع، تنوع برامج هائل، تدريب شامل.",
+                cons: "احتمال بطء الاستجابة والتحقق بسبب الحجم الكبير.",
+                url: "https://www.hackerone.com"
+            },
+            {
+                name: "Bugcrowd",
+                specialty: "عام",
+                reliability: "جيدة جدًا",
+                reliabilityScore: 4.5,
+                disputeEffectiveness: 4.5,
+                beginnerFriendly: true,
+                pros: "مجتمع قوي وداعم، تصنيف موحد للثغرات (VRT).",
+                cons: "واجهة المستخدم قد تحتاج لبعض التحسينات.",
+                url: "https://www.bugcrowd.com"
+            },
+            {
+                name: "Intigriti",
+                specialty: "عام",
+                reliability: "مختلطة",
+                reliabilityScore: 3,
+                disputeEffectiveness: 3,
+                beginnerFriendly: true,
+                pros: "حضور أوروبي قوي، تعويض محتمل من المنصة عن الأخطاء.",
+                cons: "تقارير مجتمعية عن إصلاحات صامتة ورفض غير عادل أحياناً.",
+                url: "https://www.intigriti.com"
+            },
+            {
+                name: "YesWeHack",
+                specialty: "عام",
+                reliability: "جيدة جدًا",
+                reliabilityScore: 4.5,
+                disputeEffectiveness: 4.5,
+                beginnerFriendly: true,
+                pros: "لا توجد عمولة على السحب، دعم وفرز ممتاز.",
+                cons: "متطلبات KYC صارمة جداً قد تسبب مشاكل لغير الملتزمين.",
+                url: "https://www.yeswehack.com"
+            },
+            {
+                name: "Synack Red Team",
+                specialty: "متخصص",
+                reliability: "جيدة",
+                reliabilityScore: 4,
+                disputeEffectiveness: 3.5,
+                beginnerFriendly: false,
+                pros: "مدفوعات عالية جداً، منافسة أقل (دعوة فقط).",
+                cons: "حصرية وتتطلب فحصاً صارماً، بعض الملاحظات السلبية على الدعم.",
+                url: "https://www.synack.com/red-team/"
+            },
+            {
+                name: "Cobalt",
+                specialty: "PTaaS",
+                reliability: "جيدة",
+                reliabilityScore: 3.5,
+                disputeEffectiveness: 3,
+                beginnerFriendly: false,
+                pros: "برامج عالية التأثير، إمكانية مشاركات طويلة الأجل.",
+                cons: "معلومات أقل تفصيلاً للباحثين عن آليات الدفع والنزاع.",
+                url: "https://cobalt.io/"
+            },
+            {
+                name: "HackenProof",
+                specialty: "Web3",
+                reliability: "جيدة",
+                reliabilityScore: 3.5,
+                disputeEffectiveness: 3,
+                beginnerFriendly: true,
+                pros: "رائدة في أمن Web3، مدفوعات سريعة بالعملات المشفرة.",
+                cons: "عمولة سحب 3%، قيود على التحويلات البنكية لبعض الدول.",
+                url: "https://hackenproof.com/"
+            },
+            {
+                name: "Open Bug Bounty",
+                specialty: "غير ربحية",
+                reliability: "طوعية",
+                reliabilityScore: 1,
+                disputeEffectiveness: 1,
+                beginnerFriendly: true,
+                pros: "ممتازة لبناء السمعة والخبرة، مجانية ومفتوحة للجميع.",
+                cons: "الدفع غير مضمون ويعتمد على اتفاق طوعي مع صاحب الموقع.",
+                url: "https://www.openbugbounty.org/"
+            },
+            {
+                name: "Immunefi",
+                specialty: "Web3",
+                reliability: "عالية جدًا",
+                reliabilityScore: 5,
+                disputeEffectiveness: 5,
+                beginnerFriendly: false,
+                pros: "أعلى مدفوعات في الصناعة، نظام تحكيم ملزم قانوناً.",
+                cons: "بيئة عالية المخاطر، تكلفة التحكيم مرتفعة للنزاعات.",
+                url: "https://immunefi.com/"
+            },
+            {
+                name: "Cyble",
+                specialty: "متخصص",
+                reliability: "غير مضمونة",
+                reliabilityScore: 1.5,
+                disputeEffectiveness: 1.5,
+                beginnerFriendly: false,
+                pros: "فرصة للمساهمة في ذكاء التهديدات العالمي.",
+                cons: "ليست منصة مكافآت تقليدية، الدفع المالي ليس الهدف الأساسي.",
+                url: "https://cyble.com/responsible-disclosure-program/"
+            }
+        ];
+
+        const grid = document.getElementById('platform-grid');
+        const filters = document.getElementById('filters');
+
+        function getReliabilityClass(reliability) {
+            if (['عالية جدًا', 'جيدة جدًا'].includes(reliability)) return 'tag-high';
+            if (['جيدة', 'مختلطة'].includes(reliability)) return 'tag-medium';
+            return 'tag-low';
+        }
+
+        function renderPlatforms(filter = 'all') {
+            grid.innerHTML = '';
+            const filteredData = platformData.filter(p => {
+                if (filter === 'all') return true;
+                if (filter === 'high-reliability') return ['عالية جدًا', 'جيدة جدًا'].includes(p.reliability);
+                if (filter === 'beginner-friendly') return p.beginnerFriendly;
+                if (filter === 'web3') return p.specialty === 'Web3';
+            });
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">لا توجد منصات تطابق هذا الفلتر.</p>`;
+                return;
+            }
+
+            filteredData.forEach(platform => {
+                const card = document.createElement('div');
+                card.className = 'card bg-[#FBFBFB] rounded-xl p-6 border border-gray-200 flex flex-col justify-between';
+                card.innerHTML = `
+                    <div>
+                        <h3 class="text-2xl font-bold mb-3 text-[#6D4C41]">${platform.name}</h3>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag ${getReliabilityClass(platform.reliability)}">موثوقية الدفع: ${platform.reliability}</span>
+                            <span class="tag tag-specialty">${platform.specialty}</span>
+                            ${platform.beginnerFriendly ? '<span class="tag tag-beginner">مناسبة للمبتدئين</span>' : ''}
+                        </div>
+                        <div class="details-content" id="details-${platform.name.replace(/\s/g, '')}">
+                            <p class="mb-2"><strong class="font-semibold text-green-700">الإيجابيات:</strong> ${platform.pros}</p>
+                            <p><strong class="font-semibold text-red-700">السلبيات:</strong> ${platform.cons}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                        <button class="toggle-details-btn bg-[#EFEBE9] text-[#5D4037] font-semibold py-2 px-4 rounded-full hover:bg-[#D7CCC8] transition-colors flex-grow" data-target="details-${platform.name.replace(/\s/g, '')}">عرض التفاصيل</button>
+                        <a href="${platform.url}" target="_blank" rel="noopener noreferrer" class="bg-[#A1887F] text-white font-semibold py-2 px-4 rounded-full hover:bg-[#8D6E63] transition-colors text-center flex-grow">زيارة المنصة</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.querySelectorAll('.toggle-details-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const targetId = e.target.dataset.target;
+                    const detailsContent = document.getElementById(targetId);
+                    detailsContent.classList.toggle('show');
+                    if (detailsContent.classList.contains('show')) {
+                        e.target.textContent = 'إخفاء التفاصيل';
+                    } else {
+                        e.target.textContent = 'عرض التفاصيل';
+                    }
+                });
+            });
+        }
+
+        filters.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                document.querySelector('.btn-filter.active').classList.remove('active');
+                e.target.classList.add('active');
+                renderPlatforms(e.target.dataset.filter);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlatforms();
+
+            const reliabilityCtx = document.getElementById('reliabilityChart').getContext('2d');
+            const reliabilityChart = new Chart(reliabilityCtx, {
+                type: 'bar',
+                data: {
+                    labels: platformData.map(p => p.name),
+                    datasets: [
+                        {
+                            label: 'موثوقية الدفع',
+                            data: platformData.map(p => p.reliabilityScore),
+                            backgroundColor: 'rgba(161, 136, 127, 0.6)',
+                            borderColor: 'rgba(161, 136, 127, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'فعالية حل النزاعات',
+                            data: platformData.map(p => p.disputeEffectiveness),
+                            backgroundColor: 'rgba(61, 53, 46, 0.6)',
+                            borderColor: 'rgba(61, 53, 46, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                color: '#3D352E'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#3D352E'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#3D352E'
+                            }
+                        },
+                        tooltip: {
+                            titleFont: { family: 'Tajawal' },
+                            bodyFont: { family: 'Tajawal' }
+                        }
+                    }
+                }
+            });
+
+            const specialtyData = platformData.reduce((acc, p) => {
+                acc[p.specialty] = (acc[p.specialty] || 0) + 1;
+                return acc;
+            }, {});
+
+            const specialtyCtx = document.getElementById('specialtyChart').getContext('2d');
+            const specialtyChart = new Chart(specialtyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(specialtyData),
+                    datasets: [{
+                        label: 'عدد المنصات',
+                        data: Object.values(specialtyData),
+                        backgroundColor: [
+                            'rgba(161, 136, 127, 0.7)',
+                            'rgba(227, 242, 253, 0.7)',
+                            'rgba(243, 229, 245, 0.7)',
+                            'rgba(255, 235, 238, 0.7)',
+                            'rgba(239, 235, 233, 0.7)'
+                        ],
+                        borderColor: [
+                            '#A1887F',
+                            '#1565C0',
+                            '#6A1B9A',
+                            '#C62828',
+                            '#5D4037'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#3D352E'
+                            }
+                        },
+                        tooltip: {
+                            titleFont: { family: 'Tajawal' },
+                            bodyFont: { family: 'Tajawal' }
+                        }
+                    }
+                }
+            });
+
+            // Gemini API Integration Logic
+            const generateVulnerabilityIdeasBtn = document.getElementById('generateVulnerabilityIdeasBtn');
+            const platformSpecialtySelect = document.getElementById('platformSpecialtySelect');
+            const targetTypeInput = document.getElementById('targetTypeInput');
+            const vulnerabilityIdeasOutput = document.getElementById('vulnerabilityIdeasOutput');
+            const generateVulnerabilityIdeasBtnText = document.getElementById('generateVulnerabilityIdeasBtnText');
+            const generateVulnerabilityIdeasSpinner = document.getElementById('generateVulnerabilityIdeasSpinner');
+
+            generateVulnerabilityIdeasBtn.addEventListener('click', async () => {
+                const specialty = platformSpecialtySelect.value;
+                const targetType = targetTypeInput.value.trim();
+                let prompt = "اقترح 5 أفكار لثغرات أمنية (Bug Bounty ideas) مع وصف موجز لكل فكرة.";
+
+                if (specialty && targetType) {
+                    prompt += ` بناءً على تخصص المنصة "${specialty}" ونوع الهدف "${targetType}".`;
+                } else if (specialty) {
+                    prompt += ` بناءً على تخصص المنصة "${specialty}".`;
+                } else if (targetType) {
+                    prompt += ` بناءً على نوع الهدف "${targetType}".`;
+                } else {
+                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">الرجاء اختيار تخصص منصة أو إدخال نوع هدف.</p>';
+                    return;
+                }
+
+                generateVulnerabilityIdeasBtnText.classList.add('hidden');
+                generateVulnerabilityIdeasSpinner.classList.remove('hidden');
+                vulnerabilityIdeasOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري توليد الأفكار...</p>';
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        vulnerabilityIdeasOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+                    } else {
+                        vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ في توليد الأفكار. الرجاء المحاولة مرة أخرى.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error generating vulnerability ideas:', error);
+                    vulnerabilityIdeasOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                } finally {
+                    generateVulnerabilityIdeasBtnText.classList.remove('hidden');
+                    generateVulnerabilityIdeasSpinner.classList.add('hidden');
+                }
+            });
+
+            const assessReportQualityBtn = document.getElementById('assessReportQualityBtn');
+            const reportDraftTextarea = document.getElementById('reportDraftTextarea');
+            const reportQualityOutput = document.getElementById('reportQualityOutput');
+            const assessReportQualityBtnText = document.getElementById('assessReportQualityBtnText');
+            const assessReportQualitySpinner = document.getElementById('assessReportQualitySpinner');
+
+            assessReportQualityBtn.addEventListener('click', async () => {
+                const reportText = reportDraftTextarea.value.trim();
+                if (!reportText) {
+                    reportQualityOutput.innerHTML = '<p class="text-red-500">الرجاء لصق مسودة التقرير لتقييمها.</p>';
+                    return;
+                }
+
+                const prompt = `قيم جودة تقرير الثغرة التالي وقدم اقتراحات لتحسينه ليكون أكثر وضوحًا واحترافية، مع التركيز على النقاط التي تضمن الدفع الجيد. تأكد من تغطية العناصر الأساسية مثل الوصف، خطوات إعادة الإنتاج، التأثير، والاقتراحات. التقرير: "${reportText}"`;
+
+                assessReportQualityBtnText.classList.add('hidden');
+                assessReportQualitySpinner.classList.remove('hidden');
+                reportQualityOutput.innerHTML = '<p class="text-gray-500 flex items-center justify-center"><span class="loading-spinner"></span> جاري تقييم التقرير...</p>';
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            });
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        reportQualityOutput.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+                    } else {
+                        reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ في تقييم التقرير. الرجاء المحاولة مرة أخرى.</p>';
+                    }
+                } catch (error) {
+                    console.error('Error assessing report quality:', error);
+                    reportQualityOutput.innerHTML = '<p class="text-red-500">حدث خطأ أثناء الاتصال بالخادم. الرجاء المحاولة لاحقاً.</p>';
+                } finally {
+                    assessReportQualityBtnText.classList.remove('hidden');
+                    assessReportQualitySpinner.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
